@@ -1,12 +1,19 @@
-name: java-build
+name: build-and-test
 on: [push, pull_request]
 jobs:
   test:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: ["17", "21"]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
-      - run: make test
+          java-version: ${{ matrix.java }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python scripts/test.py
